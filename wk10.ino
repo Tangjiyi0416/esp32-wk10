@@ -1,5 +1,6 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <string>
 
 const char* ssid = "tttddd";  // insert your SSID
 const char* password = "idkhowto";  // insert your password
@@ -33,7 +34,7 @@ void loop() {
   const char* weather = doc["weather"][0]["description"];
   double temp = doc["main"]["temp"];
   double humidity = doc["main"]["humidity"];
-  ClientRequest2(String(temp), String(humidity));  //Client傳送資料
+  ClientRequest2(weather, String(temp - 273), String(humidity)); //Client傳送資料
   Serial.print("*** ");
   Serial.print(location);
   Serial.println(" ***");
@@ -50,7 +51,7 @@ void loop() {
   delay(3000); // the OWM free plan API does NOT allow more then 60 calls per minute
 }
 
-char* ClientRequest() { 
+char* ClientRequest() {
   WiFiClient client;  //建立Client物件
   const int httpPort = 80;  //預設通訊阜80
   const char* host = "api.openweathermap.org";
@@ -96,7 +97,7 @@ char* ClientRequest() {
   }
 }
 
-  void ClientRequest2(String value1, String value2) {
+void ClientRequest2(std::string value1, String value2, String value3) {
 
   WiFiClient client;  //建立Client物件
   const int httpPort = 80;  //預設通訊阜80
@@ -112,7 +113,8 @@ char* ClientRequest() {
     //Webhook API
     url += "/trigger/" + String(event) + "/with/key/" + String(apiKey);
     //Query String
-    url += "?value1=" + value1 + "&value2=" + value2;
+    replaceAll(value1," ","%20");
+    url += "?value1=" + String(value1.c_str()) + "&value2=" + value2 + "&value3=" + value3;
 
     //Client傳送
     client.println(String("POST ") + url + " HTTP/1.1");
@@ -141,4 +143,14 @@ char* ClientRequest() {
     //停止Client
     client.stop();
   }
-  }
+}
+
+void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
