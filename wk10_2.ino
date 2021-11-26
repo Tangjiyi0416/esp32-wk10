@@ -83,7 +83,7 @@ void loop() {
   }
   char* influence = GetInfluence(totalPM25 / siteCount);
 
-  //SendToWebHook(String(totalPM25 / siteCount), String(influence), String(siteCount)); //Client傳送資料
+  SendToWebHook(String(totalPM25 / siteCount), String(influence), String(siteCount)); //Client傳送資料
   Serial.print("PM25: ");
   Serial.println(String(totalPM25 / siteCount));
   Serial.print("Influence: ");
@@ -110,7 +110,6 @@ void GetPM25Data() {
   else {
     Serial.println("Error on HTTP request");
   }
-
   client.end(); //Free the resources
   //回傳
 }
@@ -164,10 +163,10 @@ void SendToWebHook(String value1, String value2, String value3) {
 }
 
 char* GetInfluence(double pm25) {
-  if (pm25 > 300)return "\\u{5371}\\u{5BB3}";
-  else if (pm25 > 200)return "\\u{975E}\\u{5E38}\\u{4E0D}\\u{5065}\\u{5EB7}";
-  else if (pm25 > 150)return "\\u{5C0D}\\u{6240}\\u{6709}\\u{65CF}\\u{7FA4}\\u{4E0D}\\u{5065}\\u{5EB7}";
-  else if (pm25 > 100)return "\\u{5C0D}\\u{654F}\\u{611F}\\u{65CF}\\u{7FA4}\\u{4E0D}\\u{5065}\\u{5EB7}";
-  else if (pm25 > 50)return "\\u{666E}\\u{901A}";
-  else return "\\u{826F}\\u{597D}";
+  if (pm25 > 300)return "Hazardous";
+  else if (pm25 > 200)return "Very Unhealthy";
+  else if (pm25 > 150)return "Unhealthy";
+  else if (pm25 > 100)return "Unhealthy for Sensitive Groups";
+  else if (pm25 > 50)return "Moderate";
+  else return "Good";
 }
